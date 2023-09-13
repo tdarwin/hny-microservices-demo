@@ -13,6 +13,8 @@ spec:
       annotations:
         sidecar.istio.io/rewriteAppHTTPProbers: "true"
     spec:
+      nodeSelector:
+        nodegroup: msdemo
       serviceAccountName: default
       containers:
         - name: server
@@ -59,7 +61,7 @@ spec:
               fieldRef:
                 fieldPath: status.podIP
           - name: OTEL_EXPORTER_OTLP_ENDPOINT
-            value: opentelemetry-collector:4317
+            value: ms-demo-otelcol.msdemo.svc.cluster.local:4317
           - name: OTEL_RESOURCE_ATTRIBUTES
             value: ip=$(POD_IP)
           - name: PERCENT_NORMAL
@@ -94,15 +96,28 @@ spec:
     port: 80
     targetPort: 8080
 ---
-apiVersion: v1
-kind: Service
+apiVersion: "networking.k8s.io/v1"
+kind: Ingress
 metadata:
-  name: frontend-external
+  name: ms-demo-frontend
+  annotations:
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-2:939023695662:certificate/9df7c37c-7bb1-49bb-aaab-deb4570a9780
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    kubernetes.io/ingress.class: alb
 spec:
-  type: LoadBalancer
-  selector:
-    app: frontend
-  ports:
-  - name: http
-    port: 80
-    targetPort: 8080
+  tls:
+    - hosts:
+        - "ms-demo.customersuccess.hny.wtf"
+      secretName: ms-demo-tls
+  rules:
+    - host: "ms-demo.customersuccess.hny.wtf"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: refinery
+                port:
+                  name: data

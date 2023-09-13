@@ -11,6 +11,8 @@ spec:
       labels:
         app: redis-cart
     spec:
+      nodeSelector:
+        nodegroup: msdemo
       containers:
       - name: redis
         image: redis:alpine

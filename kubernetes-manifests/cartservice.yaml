@@ -11,6 +11,8 @@ spec:
       labels:
         app: cartservice
     spec:
+      nodeSelector:
+        nodegroup: msdemo
       serviceAccountName: default
       terminationGracePeriodSeconds: 5
       containers:
@@ -24,7 +26,7 @@ spec:
         - name: SERVICE_NAME
           value: cart
         - name: OTEL_EXPORTER_OTLP_ENDPOINT
-          value: http://opentelemetry-collector:4317
+          value: http://ms-demo-otelcol.msdemo.svc.cluster.local:4317
         - name: POD_IP
           valueFrom:
             fieldRef:

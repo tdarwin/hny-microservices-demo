@@ -11,6 +11,8 @@ spec:
       labels:
         app: paymentservice
     spec:
+      nodeSelector:
+        nodegroup: msdemo
       serviceAccountName: default
       terminationGracePeriodSeconds: 5
       containers:
@@ -22,7 +24,7 @@ spec:
         - name: PORT
           value: "50051"
         - name: OTEL_EXPORTER_OTLP_ENDPOINT
-          value: grpc://opentelemetry-collector:4317
+          value: grpc://ms-demo-otelcol.msdemo.svc.cluster.local:4317
         - name: POD_IP
           valueFrom:
             fieldRef:

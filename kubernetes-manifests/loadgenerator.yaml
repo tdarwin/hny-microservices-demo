@@ -14,6 +14,8 @@ spec:
       annotations:
         sidecar.istio.io/rewriteAppHTTPProbers: "true"
     spec:
+      nodeSelector:
+        nodegroup: msdemo
       serviceAccountName: default
       terminationGracePeriodSeconds: 5
       restartPolicy: Always
@@ -22,13 +24,13 @@ spec:
         image: loadgenerator
         env:
         - name: FRONTEND_ADDR
-          value: http://frontend
+          value: http://frontend.msdemo.svc.cluster.local
         - name: USERS
-          value: "5"
+          value: "50"
         resources:
           requests:
-            cpu: 300m
-            memory: 256Mi
+            cpu: 500m
+            memory: 512Mi
           limits:
             cpu: 500m
             memory: 512Mi
