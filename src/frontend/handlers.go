@@ -300,21 +300,17 @@ func (fe *frontendServer) placeOrderHandler(w http.ResponseWriter, r *http.Reque
 	reqID := reqIDRaw.(string)
 
 	// add the UserID and requestId into OpenTelemetry Baggage to propagate across services
-	userIdMember, _ := baggage.NewMember("userid", s)
-	requestIdMember, _ := baggage.NewMember("requestID", reqID)
+	userIdMember, _ := baggage.NewMember("app.user_id", s)
+	requestIdMember, _ := baggage.NewMember("app.request_id", reqID)
+	buildIdMember, _ := baggage.NewMember("app.build_id", MockBuildId)
 	bags := baggage.FromContext(ctx)
 	bags, _ = bags.SetMember(userIdMember)
 	bags, _ = bags.SetMember(requestIdMember)
+	bags, _ = bags.SetMember(buildIdMember)
 	ctx = baggage.ContextWithBaggage(ctx, bags)
 
 	// Get current span and set additional attributes to it
-	var (
-		userIDKey    = attribute.Key("userid")
-		cartTotalKey = attribute.Key("cart_total")
-		requestIDKey = attribute.Key("requestID")
-	)
 	span := trace.SpanFromContext(ctx)
-	span.SetAttributes(userIDKey.String(s), requestIDKey.String(reqID))
 
 	order, err := pb.NewCheckoutServiceClient(fe.checkoutSvcConn).
 		PlaceOrder(ctx, &pb.PlaceOrderRequest{
@@ -350,7 +346,7 @@ func (fe *frontendServer) placeOrderHandler(w http.ResponseWriter, r *http.Reque
 
 	// add total paid to span
 	totalPaidNum, err := strconv.ParseFloat(fmt.Sprintf("%d.%02d", totalPaid.GetUnits(), totalPaid.GetNanos()/10000000), 64)
-	span.SetAttributes(cartTotalKey.Float64(totalPaidNum))
+	span.SetAttributes(attribute.Key("app.cart_total").Float64(totalPaidNum))
 
 	currencies, err := fe.getCurrencies(r.Context())
 	if err != nil {
