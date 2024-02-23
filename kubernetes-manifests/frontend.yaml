@@ -101,7 +101,7 @@ kind: Ingress
 metadata:
   name: ms-demo-frontend
   annotations:
-    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-2:939023695662:certificate/9df7c37c-7bb1-49bb-aaab-deb4570a9780
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:939023695662:certificate/89701f3e-76c5-47ad-b94c-0f46198b54c7
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     kubernetes.io/ingress.class: alb
